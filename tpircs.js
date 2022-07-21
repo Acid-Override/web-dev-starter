@@ -1,14 +1,76 @@
-var revStr = function (str) {
-  let accStr = ''
+public async Task<TopCommentsProjection> MostActiveCommentersAsync()
+{
+    /**
+        TODO Ticket: User Report
+        Build a pipeline that returns the 20 most frequent commenters on the MFlix
+        site. You can do this by counting the number of occurrences of a user's
+        email in the `comments` collection.
 
-  for (let i = str.length - 1; i >= 0; i-- ) {
-    accStr += str[i]
-  }
+        In addition, set the ReadConcern on the _commentsCollection to
+        ensure the most accurate reads occur.
+    */
+    try
+    {
+        List<ReportProjection> result = null;
+        // TODO Ticket: User Report
+        // Return the 20 users who have commented the most on MFlix. You will need to use
+        // the Group, Sort, Limit, and Project methods of the Aggregation pipeline.
+        //
+        // // result = await _commentsCollection
+        // //   .WithReadConcern(...)
+        // //   .Aggregate()
+        // //   .Group(...)
+        // //   .Sort(...).Limt(...).Project(...).ToListAsync()
 
-  return accStr;
+        //from Compass
+        var group = new BsonDocument
+           {
+                        { "_id", "$email" },
+                        { "count", new BsonDocument("$sum", 1) }
+
+            };
+
+        var sortStage = Builders<BsonDocument>.Sort.Descending("count");
+        var limitStage = 20;
+        var projectionStage = Builders<BsonDocument>.Projection.Include("email").Include("count");
+
+        result = await _commentsCollection
+            .WithReadConcern(ReadConcern.Majority)
+            .Aggregate()
+            .Group(group)
+            .Sort(sortStage)
+            .Limit(limitStage)
+            .Project<ReportProjection>(projectionStage)
+            .ToListAsync();
+
+
+        return new TopCommentsProjection(result);
+    }
+    catch (Exception ex)
+    {
+        Console.WriteLine(ex);
+        throw;
+    }
 }
 
-console.log(revStr("Hello World !"))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
