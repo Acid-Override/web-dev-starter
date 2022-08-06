@@ -1,61 +1,46 @@
-public async Task<TopCommentsProjection> MostActiveCommentersAsync()
-{
-    /**
-        TODO Ticket: User Report
-        Build a pipeline that returns the 20 most frequent commenters on the MFlix
-        site. You can do this by counting the number of occurrences of a user's
-        email in the `comments` collection.
-
-        In addition, set the ReadConcern on the _commentsCollection to
-        ensure the most accurate reads occur.
-    */
-    try
-    {
-        List<ReportProjection> result = null;
-        // TODO Ticket: User Report
-        // Return the 20 users who have commented the most on MFlix. You will need to use
-        // the Group, Sort, Limit, and Project methods of the Aggregation pipeline.
-        //
-        // // result = await _commentsCollection
-        // //   .WithReadConcern(...)
-        // //   .Aggregate()
-        // //   .Group(...)
-        // //   .Sort(...).Limt(...).Project(...).ToListAsync()
-
-        //from Compass
-        var group = new BsonDocument
-           {
-                        { "_id", "$email" },
-                        { "count", new BsonDocument("$sum", 1) }
-
-            };
-
-        var sortStage = Builders<BsonDocument>.Sort.Descending("count");
-        var limitStage = 20;
-        var projectionStage = Builders<BsonDocument>.Projection.Include("email").Include("count");
-
-        result = await _commentsCollection
-            .WithReadConcern(ReadConcern.Majority)
-            .Aggregate()
-            .Group(group)
-            .Sort(sortStage)
-            .Limit(limitStage)
-            .Project<ReportProjection>(projectionStage)
-            .ToListAsync();
-
-
-        return new TopCommentsProjection(result);
-    }
-    catch (Exception ex)
-    {
-        Console.WriteLine(ex);
-        throw;
-    }
+function TreeNode(val, left, right) {
+  this.val = (val === undefined ? 0 : val);
+  this.left = (left === undefined ? null : left);
+  this.right = (right === undefined ? null : right);
 }
 
+let root = new TreeNode(3);
+root.left = new TreeNode(1);
+root.right = new TreeNode(4);
+root.left.right = new TreeNode(2);
 
+console.log(root);
 
+function kthSmallestElement (root, k) {
+  debugger
 
+  let counter = 0;
+  let result;
+
+  function innerFunc (_root, _k) {
+    if (!_root) {
+      return
+    }
+
+    if (counter < k) {
+      innerFunc(_root.left);
+      counter++;
+
+      if (counter === k) {
+        result = _root.val;
+        return;
+      }
+
+      innerFunc(_root.right);
+
+    }
+
+  }
+  innerFunc(root, k)
+  return result;
+
+}
+kthSmallestElement(root, 2);
 
 
 
